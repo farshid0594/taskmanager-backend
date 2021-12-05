@@ -6,9 +6,9 @@ const express = require("express");
 const app = express();
 const httpServer = createServer(app);
 
-app.get("/", (req, res) => {
-  res.send("ok");
-});
+//config routes
+const Router = require("./src/routes");
+app.use(Router);
 
 httpServer.listen(8000, () => {
   console.log("server running");
