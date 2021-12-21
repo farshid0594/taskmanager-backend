@@ -6,10 +6,25 @@ const express = require("express");
 const app = express();
 const httpServer = createServer(app);
 
+// config .env
+require("dotenv").config();
+
+
+// config bodyparser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// mongoose
+const mongoose = require("mongoose");
+mongoose.connect(`mongodb://127.0.0.1:27017/${process.env.DATA_BASE}`, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+});
+
 //config routes
 const Router = require("./src/routes");
 app.use(Router);
 
-httpServer.listen(8000, () => {
-  console.log("server running");
+httpServer.listen(process.env.PORT, () => {
+  console.log(`server running on port ${process.env.PORT}`);
 });
