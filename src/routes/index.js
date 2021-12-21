@@ -2,9 +2,9 @@
 const express = require("express");
 
 //import routers
-const AppRouter = require("./AppRoutes");
-const AdminRouter = require("./AdminRoutes");
-const UserRouter = require("./UserRouter");
+const AppRouter = require("./app");
+const AdminRouter = require("./admin");
+const UserRouter = require("./user");
 
 //create router
 const Router = express.Router();
