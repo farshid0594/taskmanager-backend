@@ -9,7 +9,7 @@ const UserSchema = new Schema(
     mobile: { type: String, required: true, unique: true },
     name: { type: String, maxlength: 30 },
     tokens: [{ text: String, expired: String }],
-    code: { text: Number, expired: String },
+    code: { text: String, expired: String },
     isActive: { type: Boolean, default: false },
   },
   {
