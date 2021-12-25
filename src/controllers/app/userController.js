@@ -1,5 +1,5 @@
 const moment = require("moment");
-var jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 const utils = require("../../helpers/utils");
 const User = require("../../models/user");
@@ -56,19 +56,34 @@ exports.SignUp = function (req, res) {
 exports.CheckCode = function (req, res) {
   const { code, id } = req.body;
 
-  User.findById({ _id: id }, (err, foundedUser) => {
+  User.findById(id, (err, foundedUser) => {
     if (err) {
       return res.status(500).json({ message: "server error" });
     }
     if (foundedUser === null) {
       return res.status(404).json({ message: "user not found" });
     } else {
+      if (
+        moment().diff(
+          moment(foundedUser.code.expired, "YYYYMMDDThhmmss"),
+          "s"
+        ) > 0
+      ) {
+        return res
+          .status(400)
+          .json({
+            message: moment().diff(
+              moment(foundedUser.code.expired, "YYYYMMDDThhmmss"),
+              "s"
+            ),
+          });
+      }
       if (foundedUser.code.text === code) {
         const operationId = jwt.sign(
           { userId: foundedUser._id, code: code },
           process.env.JWT_SECRET_KEY,
           {
-            expiresIn: process.env.JWT_EXPIRES_TIME, // 2h
+            expiresIn: "2h",
           }
         );
         return res
