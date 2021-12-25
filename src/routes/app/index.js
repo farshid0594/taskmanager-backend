@@ -1,5 +1,6 @@
 //import modules
 const express = require("express");
+const userAuth = require("../../middlewares/userAuth");
 
 //create router
 const AppRouter = express.Router();

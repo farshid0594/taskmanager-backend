@@ -11,6 +11,7 @@ const UserSchema = new Schema(
     tokens: [{ text: String, expired: String }],
     code: { text: String, expired: String },
     isActive: { type: Boolean, default: false },
+    role:Number
   },
   {
     timestamps: true,
