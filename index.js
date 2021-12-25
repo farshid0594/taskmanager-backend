@@ -1,6 +1,7 @@
 //import modules
 const { createServer } = require("http");
 const express = require("express");
+const cors = require("cors");
 
 //create server
 const app = express();
@@ -9,10 +10,12 @@ const httpServer = createServer(app);
 // config .env
 require("dotenv").config();
 
-
 // config bodyparser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// cors
+app.use(cors());
 
 // mongoose
 const mongoose = require("mongoose");

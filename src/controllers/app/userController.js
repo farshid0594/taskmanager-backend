@@ -1,4 +1,5 @@
 const moment = require("moment");
+var jwt = require("jsonwebtoken");
 
 const utils = require("../../helpers/utils");
 const User = require("../../models/user");
@@ -53,21 +54,29 @@ exports.SignUp = function (req, res) {
 };
 
 exports.CheckCode = function (req, res) {
-  var { code, id } = req.body;
+  const { code, id } = req.body;
 
-  User.findById(id)
-    .populate("code")
-    .exec((err, foundedUser) => {
-      if (err) {
-        return res.status(500).json({ message: "server error" });
-      }
-      if (foundedUser === null) {
-        return res.status(404).json({ message: "user not found" });
-      }
-      if (foundedUser.code && foundedUser.code === code) {
-        return res.status(200).json({ message: "succecfully confirmed" });
+  User.findById({ _id: id }, (err, foundedUser) => {
+    if (err) {
+      return res.status(500).json({ message: "server error" });
+    }
+    if (foundedUser === null) {
+      return res.status(404).json({ message: "user not found" });
+    } else {
+      if (foundedUser.code.text === code) {
+        const operationId = jwt.sign(
+          { userId: foundedUser._id, code: code },
+          process.env.JWT_SECRET_KEY,
+          {
+            expiresIn: process.env.JWT_EXPIRES_TIME, // 2h
+          }
+        );
+        return res
+          .status(200)
+          .json({ message: "succecfully confirmed", operationId: operationId });
       } else {
         return res.status(400).json({ message: "wrong code" });
       }
-    });
+    }
+  });
 };
