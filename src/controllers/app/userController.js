@@ -136,19 +136,15 @@ exports.completeSignup = function (req, res) {
 };
 
 exports.checkUserName = function (req, res) {
+  const {userName} = req.body;
   User.findOne({ userName: userName }, (err, doc) => {
     if (err) {
       return res.status(500).json({ message: "server Error" });
     }
     if (doc !== null) {
-      errors.push({
-        key: "userName",
-        password: "userName exists",
-      });
+      return res.status(400).json({ message: "false" });
+    } else {
+      return res.status(200).json({ message: "true" });
     }
-    if (errors.length > 0) {
-      return res.status(400).json({ errors: errors });
-    }
-    next();
   });
 };

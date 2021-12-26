@@ -19,6 +19,11 @@ exports.ValidateSignupFields = (req, res, next) => {
       key: "userName",
       title: "userName is required",
     });
+  } else if (userName.length < 4) {
+    errors.push({
+      key: "userName",
+      title: "userName length must be more than 6",
+    });
   }
   if (!password) {
     errors.push({
@@ -29,12 +34,6 @@ exports.ValidateSignupFields = (req, res, next) => {
     errors.push({
       key: "password",
       title: "password length must be more than 6",
-    });
-  }
-  if (userName.length < 4) {
-    errors.push({
-      key: "userName",
-      title: "userName length must be more than 6",
     });
   }
 
@@ -57,7 +56,6 @@ exports.ValidateSignupFields = (req, res, next) => {
 
 exports.ValidateUserName = (req, res, next) => {
   const errors = [];
-  
   const { userName } = req.body;
   if (!userName) {
     errors.push({
@@ -70,4 +68,8 @@ exports.ValidateUserName = (req, res, next) => {
       title: "userName length must be more than 6",
     });
   }
+  if (errors.length > 0) {
+    return res.status(400).json({ errors: errors });
+  }
+  next();
 };
