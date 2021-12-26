@@ -40,7 +40,7 @@ exports.SignUp = function (req, res) {
       }
       newUser.save((err, savedUser) => {
         if (err) {
-          return res.status(500).json({ message: "Server Error 523" });
+          return res.status(500).json({ message: "Server Error" });
         }
         return res.status(200).json({
           message: "successfully updated",
@@ -93,8 +93,7 @@ exports.CheckCode = function (req, res) {
 
 exports.completeSignup = function (req, res) {
   const { operationId, userName, password } = req.body;
-  var { userId, code } = jwt.verify(operationId, process.env.JWT_SECRET_KEY);
-  console.log("userId", userId);
+  const { userId, code } = jwt.verify(operationId, process.env.JWT_SECRET_KEY);
   try {
     User.findById(userId, (err, foundedUser) => {
       if (err) {
@@ -109,20 +108,25 @@ exports.completeSignup = function (req, res) {
         if (foundedUser.isActive) {
           return res.status(400).json({ message: "user is already active" });
         }
+        
+      // hash password
+      bcrypt.hash(password, bcrypt.genSaltSync(10), (err, hash) => {
+        if (err) {
+          return res.status(500).json({ message: "server error" });
+        }
         //updated inActive user
-        updatedUser = foundedUser;
-        updatedUser.username = userName;
-        updatedUser.password = password;
-        updatedUser.isActive = true;
-        updatedUser.save((err, savedUpdatedUser) => {
+        foundedUser.username = userName;
+        foundedUser.password = hash;
+        foundedUser.isActive = true;
+        foundedUser.save((err, savedUpdatedUser) => {
           if (err) {
             return res.status(500).json({ message: "Server Error" });
           }
           return res.status(200).json({
-            message: "signup completed",
-            id: savedUpdatedUser._id,
+            message: "signup completed"
           });
         });
+      });
       }
     });
   } catch (error) {
