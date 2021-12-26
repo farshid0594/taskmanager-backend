@@ -57,6 +57,7 @@ exports.ValidateSignupFields = (req, res, next) => {
 
 exports.ValidateUserName = (req, res, next) => {
   const errors = [];
+  
   const { userName } = req.body;
   if (!userName) {
     errors.push({
