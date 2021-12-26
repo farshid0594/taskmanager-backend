@@ -1,3 +1,5 @@
+const User = require("../models/user")
+
 exports.ValidateMobile = (req, res, next) => {
   const { mobile } = req.body;
   if (!/^09[0-9]{9}$/.test(mobile)) {

@@ -1,5 +1,6 @@
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt")
 
 const utils = require("../../helpers/utils");
 const User = require("../../models/user");
@@ -115,7 +116,7 @@ exports.completeSignup = function (req, res) {
           return res.status(500).json({ message: "server error" });
         }
         //updated inActive user
-        foundedUser.username = userName;
+        foundedUser.userName = userName;
         foundedUser.password = hash;
         foundedUser.isActive = true;
         foundedUser.save((err, savedUpdatedUser) => {
