@@ -14,16 +14,27 @@ exports.ValidateMobile = (req, res, next) => {
 exports.ValidateSignupFields = (req, res, next) => {
   const errors = [];
   const { userName, password } = req.body;
-  if (password.length < 6) {
+  if (!userName) {
+    errors.push({
+      key: "userName",
+      title: "userName is required",
+    });
+  }
+  if (!password) {
     errors.push({
       key: "password",
-      password: "password length must be more than 6",
+      title: "password is required",
+    });
+  } else if (password.length < 6) {
+    errors.push({
+      key: "password",
+      title: "password length must be more than 6",
     });
   }
   if (userName.length < 4) {
     errors.push({
       key: "userName",
-      userName: "userName length must be more than 6",
+      title: "userName length must be more than 6",
     });
   }
 
@@ -42,4 +53,20 @@ exports.ValidateSignupFields = (req, res, next) => {
     }
     next();
   });
+};
+
+exports.ValidateUserName = (req, res, next) => {
+  const errors = [];
+  const { userName } = req.body;
+  if (!userName) {
+    errors.push({
+      key: "userName",
+      title: "userName is required",
+    });
+  } else if (userName.length < 4) {
+    errors.push({
+      key: "userName",
+      title: "userName length must be more than 6",
+    });
+  }
 };
