@@ -1,4 +1,4 @@
-const User = require("../models/user")
+const User = require("../models/user");
 
 exports.ValidateMobile = (req, res, next) => {
   const { mobile } = req.body;
@@ -27,18 +27,17 @@ exports.ValidateSignupFields = (req, res, next) => {
     });
   }
 
-  if (errors.length > 0) {
-    return res.status(400).json({ errors: errors });
-  }
   User.findOne({ userName: userName }, (err, doc) => {
     if (err) {
-      return res.status(500).json({ message: "server Error"});
+      return res.status(500).json({ message: "server Error" });
     }
     if (doc !== null) {
       errors.push({
         key: "userName",
         password: "userName exists",
       });
+    }
+    if (errors.length > 0) {
       return res.status(400).json({ errors: errors });
     }
     next();
