@@ -1,5 +1,6 @@
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt")
 
 const utils = require("../../helpers/utils");
 const User = require("../../models/user");
@@ -67,16 +68,11 @@ exports.CheckCode = function (req, res) {
         moment().diff(
           moment(foundedUser.code.expired, "YYYYMMDDThhmmss"),
           "s"
-        ) > 0
+        ) < 0
       ) {
-        return res
-          .status(400)
-          .json({
-            message: moment().diff(
-              moment(foundedUser.code.expired, "YYYYMMDDThhmmss"),
-              "s"
-            ),
-          });
+        return res.status(400).json({
+          message: "user code has expired",
+        });
       }
       if (foundedUser.code.text === code) {
         const operationId = jwt.sign(
@@ -94,4 +90,47 @@ exports.CheckCode = function (req, res) {
       }
     }
   });
+};
+
+exports.completeSignup = function (req, res) {
+  const { operationId, userName, password } = req.body;
+  const { userId, code } = jwt.verify(operationId, process.env.JWT_SECRET_KEY);
+  try {
+    User.findById(userId, (err, foundedUser) => {
+      if (err) {
+        return res.status(500).json({ message: "server error" });
+      }
+      if (foundedUser === null) {
+        return res.status(404).json({ message: "user not found" });
+      } else {
+        if (foundedUser.code.text !== code) {
+          return res.status(400).json({ message: "wrong enteries" });
+        }
+        if (foundedUser.isActive) {
+          return res.status(400).json({ message: "user is already active" });
+        }
+        
+      // hash password
+      bcrypt.hash(password, bcrypt.genSaltSync(10), (err, hash) => {
+        if (err) {
+          return res.status(500).json({ message: "server error" });
+        }
+        //updated inActive user
+        foundedUser.userName = userName;
+        foundedUser.password = hash;
+        foundedUser.isActive = true;
+        foundedUser.save((err, savedUpdatedUser) => {
+          if (err) {
+            return res.status(500).json({ message: "Server Error" });
+          }
+          return res.status(200).json({
+            message: "signup completed"
+          });
+        });
+      });
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "server error" });
+  }
 };
