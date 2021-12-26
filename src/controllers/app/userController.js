@@ -40,7 +40,7 @@ exports.SignUp = function (req, res) {
       }
       newUser.save((err, savedUser) => {
         if (err) {
-          return res.status(500).json({ message: "Server Error" });
+          return res.status(500).json({ message: "Server Error 523" });
         }
         return res.status(200).json({
           message: "successfully updated",
@@ -67,16 +67,11 @@ exports.CheckCode = function (req, res) {
         moment().diff(
           moment(foundedUser.code.expired, "YYYYMMDDThhmmss"),
           "s"
-        ) > 0
+        ) < 0
       ) {
-        return res
-          .status(400)
-          .json({
-            message: moment().diff(
-              moment(foundedUser.code.expired, "YYYYMMDDThhmmss"),
-              "s"
-            ),
-          });
+        return res.status(400).json({
+          message: "user code has expired",
+        });
       }
       if (foundedUser.code.text === code) {
         const operationId = jwt.sign(
@@ -94,4 +89,43 @@ exports.CheckCode = function (req, res) {
       }
     }
   });
+};
+
+exports.completeSignup = function (req, res) {
+  const { operationId, userName, password } = req.body;
+  var { userId, code } = jwt.verify(operationId, process.env.JWT_SECRET_KEY);
+  console.log("userId", userId);
+  try {
+    User.findById(userId, (err, foundedUser) => {
+      if (err) {
+        return res.status(500).json({ message: "server error" });
+      }
+      if (foundedUser === null) {
+        return res.status(404).json({ message: "user not found" });
+      } else {
+        if (foundedUser.code.text !== code) {
+          return res.status(400).json({ message: "wrong enteries" });
+        }
+        if (foundedUser.isActive) {
+          return res.status(400).json({ message: "user is already active" });
+        }
+        //updated inActive user
+        updatedUser = foundedUser;
+        updatedUser.username = userName;
+        updatedUser.password = password;
+        updatedUser.isActive = true;
+        updatedUser.save((err, savedUpdatedUser) => {
+          if (err) {
+            return res.status(500).json({ message: "Server Error" });
+          }
+          return res.status(200).json({
+            message: "signup completed",
+            id: savedUpdatedUser._id,
+          });
+        });
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "server error" });
+  }
 };

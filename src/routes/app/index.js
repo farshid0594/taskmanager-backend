@@ -13,5 +13,6 @@ const UserController = require("../../controllers/app/userController");
 //routes
 AppRouter.post("/signup", LoginValidator.ValidateMobile, UserController.SignUp);
 AppRouter.post("/checkCode", UserController.CheckCode);
+AppRouter.post("/completeSignup", LoginValidator.ValidateSignupFields, UserController.completeSignup);
 
 module.exports = AppRouter;
