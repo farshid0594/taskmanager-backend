@@ -1,6 +1,6 @@
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 const utils = require("../../helpers/utils");
 const User = require("../../models/user");
@@ -109,28 +109,42 @@ exports.completeSignup = function (req, res) {
         if (foundedUser.isActive) {
           return res.status(400).json({ message: "user is already active" });
         }
-        
-      // hash password
-      bcrypt.hash(password, bcrypt.genSaltSync(10), (err, hash) => {
-        if (err) {
-          return res.status(500).json({ message: "server error" });
-        }
-        //updated inActive user
-        foundedUser.userName = userName;
-        foundedUser.password = hash;
-        foundedUser.isActive = true;
-        foundedUser.save((err, savedUpdatedUser) => {
+
+        // hash password
+        bcrypt.hash(password, bcrypt.genSaltSync(10), (err, hash) => {
           if (err) {
-            return res.status(500).json({ message: "Server Error" });
+            return res.status(500).json({ message: "server error" });
           }
-          return res.status(200).json({
-            message: "signup completed"
+          //updated inActive user
+          foundedUser.userName = userName;
+          foundedUser.password = hash;
+          foundedUser.isActive = true;
+          foundedUser.save((err, savedUpdatedUser) => {
+            if (err) {
+              return res.status(500).json({ message: "Server Error" });
+            }
+            return res.status(200).json({
+              message: "signup completed",
+            });
           });
         });
-      });
       }
     });
   } catch (error) {
     return res.status(500).json({ message: "server error" });
   }
+};
+
+exports.checkUserName = function (req, res) {
+  const {userName} = req.body;
+  User.findOne({ userName: userName }, (err, doc) => {
+    if (err) {
+      return res.status(500).json({ message: "server Error" });
+    }
+    if (doc !== null) {
+      return res.status(400).json({ message: "false" });
+    } else {
+      return res.status(200).json({ message: "true" });
+    }
+  });
 };
